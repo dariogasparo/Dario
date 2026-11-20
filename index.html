@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema Scheletrico Interattivo - Italiano L2</title>
+  <style>
+    :root {
+      --bg: #f3f7fa;
+      --card: #ffffff;
+      --primary: #0f766e;
+      --primary-light: #ccfbf1;
+      --accent: #f59e0b;
+      --accent-light: #fef3c7;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --text: #1e293b;
+      --muted: #64748b;
+      --bone-fill: #faf5e8;
+      --bone-stroke: #334155;
+      --bone-hover: #2dd4bf;
+      --bone-active: #f59e0b;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f766e, #0d9488);
+      color: white;
+      padding: 18px 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.45rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: none;
+      background: rgba(255,255,255,0.18);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .tab-btn:hover { background: rgba(255,255,255,0.3); }
+    .tab-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 22px auto;
+      padding: 0 16px 40px;
+    }
+
+    .mode-panel { display: none; }
+    .mode-panel.active { display: block; }
+
+    .toolbar {
+      background: var(--card);
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      border: 1px solid #cbd5e1;
+      background: white;
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 0.9rem;
+    }
+
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn.primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .btn.primary:hover { background: #115e59; color: white; }
+    .btn.active-pill {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .workspace { grid-template-columns: 1fr; }
+    }
+
+    .diagram-card, .info-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      position: relative;
+    }
+
+    .diagram-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #f8fafc 0%, #eef2f6 100%);
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 540px;
+    }
+
+    svg.skeleton-svg {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      max-height: 620px;
+      user-select: none;
+    }
+
+    .bone {
+      cursor: pointer;
+      transition: fill 0.18s ease, stroke 0.18s ease, filter 0.18s ease;
+    }
+
+    .bone path, .bone rect, .bone ellipse, .bone circle, .bone polygon {
+      fill: var(--bone-fill);
+      stroke: var(--bone-stroke);
+      stroke-width: 1.8;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      transition: fill 0.18s ease, stroke 0.18s ease;
+    }
+
+    .bone.hovered path, .bone.hovered rect, .bone.hovered ellipse, .bone.hovered circle, .bone.hovered polygon {
+      fill: var(--bone-hover);
+      stroke: #0f766e;
+      stroke-width: 2.3;
+    }
+
+    .bone.selected path, .bone.selected rect, .bone.selected ellipse, .bone.selected circle, .bone.selected polygon {
+      fill: var(--bone-active);
+      stroke: #b45309;
+      stroke-width: 2.5;
+    }
+
+    .bone.matched path, .bone.matched rect, .bone.matched ellipse, .bone.matched circle, .bone.matched polygon {
+      fill: #86efac;
+      stroke: #15803d;
+    }
+
+    .floating-tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: #0f172a;
+      color: white;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+      z-index: 999;
+      opacity: 0;
+      transform: translate(14px, -14px);
+      transition: opacity 0.12s;
+      white-space: nowrap;
+    }
+
+    .floating-tooltip.visible { opacity: 1; }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: var(--primary-light);
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .bone-title {
+      font-size: 1.8rem;
+      margin: 10px 0 4px;
+      color: #0f172a;
+    }
+
+    .bone-article {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+
+    .bone-desc {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 0 10px 10px 0;
+      color: #334155;
+      margin-bottom: 16px;
+    }
+
+    .bone-list-quick {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .chip-mini {
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip-mini:hover, .chip-mini.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* FLASHCARDS */
+    .flashcard-container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .flashcard-scene {
+      perspective: 1000px;
+      height: 330px;
+      margin: 18px 0;
+      cursor: pointer;
+    }
+
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(.4,.2,.2,1);
+    }
+
+    .flashcard.flipped { transform: rotateY(180deg); }
+
+    .fc-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      background: var(--card);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border: 2px solid #e2e8f0;
+    }
+
+    .fc-back {
+      transform: rotateY(180deg);
+      background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%);
+      border-color: #99f6e4;
+    }
+
+    .fc-word {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 12px 0 8px;
+    }
+
+    .fc-hint {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    /* PUZZLE */
+    .puzzle-targets-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .target-pin {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2.5px dashed #0f766e;
+      color: #0f766e;
+      font-weight: 800;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+      transition: all 0.18s;
+      white-space: nowrap;
+      z-index: 5;
+    }
+
+    .target-pin.drag-over {
+      transform: translate(-50%, -50%) scale(1.18);
+      background: var(--accent-light);
+      border-color: var(--accent);
+      border-style: solid;
+    }
+
+    .target-pin.solved {
+      background: #16a34a;
+      border: 2px solid #ffffff;
+      color: white;
+      font-size: 0.78rem;
+      padding: 2px 10px;
+      cursor: default;
+    }
+
+    .target-pin.wrong-shake {
+      animation: shake 0.35s;
+      background: #fee2e2;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(-50%, -50%); }
+      25% { transform: translate(calc(-50% - 6px), -50%); }
+      75% { transform: translate(calc(-50% + 6px), -50%); }
+    }
+
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .drag-chip {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 9px 14px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: grab;
+      user-select: none;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .drag-chip:hover {
+      border-color: var(--primary);
+      background: #f0fdfa;
+      transform: translateY(-2px);
+    }
+
+    .drag-chip.picked {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.25);
+    }
+
+    .drag-chip.used {
+      opacity: 0.35;
+      pointer-events: none;
+      text-decoration: line-through;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .stat-pill {
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    .victory-banner {
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      border: 2px solid #22c55e;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 14px;
+      display: none;
+    }
+
+    .victory-banner.show { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>🦴 Il Sistema Scheletrico</h1>
+      <div class="subtitle">Attività interattiva di anatomia per imparare i termini in italiano</div>
+    </div>
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-mode="explore">🔍 Esplora (Mouse)</button>
+      <button class="tab-btn" data-mode="flashcards">🗂️ Flashcard</button>
+      <button class="tab-btn" data-mode="puzzle">🧩 Rompicapo / Puzzle</button>
+    </nav>
+  </div>
+</header>
+
+<div id="tooltip" class="floating-tooltip"></div>
+
+<main>
+  <!-- ==================== MODALITÀ 1: ESPLORA ==================== -->
+  <section id="mode-explore" class="mode-panel active">
+    <div class="toolbar">
+      <div class="btn-group">
+        <strong>Vista:</strong>
+        <button class="btn active-pill explore-view-btn" data-view="anterior">Vista Anteriore (Fronte)</button>
+        <button class="btn explore-view-btn" data-view="posterior">Vista Posteriore (Retro)</button>
+        <button class="btn explore-view-btn" data-view="skull">Cranio (Profilo)</button>
+      </div>
+      <div class="btn-group">
+        <label class="toggle-label">
+          <input type="checkbox" id="auto-audio-toggle" />
+          🔊 Pronuncia automatica al passaggio/clic
+        </label>
+      </div>
+    </div>
+
+    <div class="workspace">
+      <div class="diagram-card">
+        <div class="diagram-wrapper" id="explore-diagram-container"></div>
+      </div>
+
+      <div class="info-card">
+        <span class="badge" id="info-region">Seleziona un osso</span>
+        <h2 class="bone-title" id="info-name">Passa il mouse sullo scheletro</h2>
+        <div class="bone-article" id="info-article">Scopri nomi, posizione e pronuncia in italiano</div>
+        <div class="bone-desc" id="info-desc">
+          Muovi il cursore sopra qualsiasi osso dello schema (oppure tocca sullo schermo) per vederne il nome. Clicca sul pulsante qui sotto per ascoltare la pronuncia corretta.
+        </div>
+        <button class="btn primary" id="speak-current-btn" disabled>🔊 Ascolta pronuncia</button>
+
+        <hr style="border:none; border-top:1px solid #e2e8f0; margin:18px 0 12px;">
+        <div style="font-weight:700; font-size:0.9rem; color:#475569;">Ossa presenti in questa vista:</div>
+        <div class="bone-list-quick" id="explore-quick-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== MODALITÀ 2: FLASHCARD ==================== -->
+  <section id="mode-flashcards" class="mode-panel">
+    <div class="toolbar">
+      <div class="btn-group">
+        <strong>Categoria:</strong>
+        <select id="fc-category" class="btn">
+          <option value="all">Tutte le ossa</option>
+          <option value="Cranio">Ossa del Cranio</option>
+          <option value="Tronco e Bacino">Tronco e Bacino</option>
+          <option value="Arto Superiore">Arto Superiore (Braccio e Mano)</option>
+          <option value="Arto Inferiore">Arto Inferiore (Gamba e Piede)</option>
+        </select>
+        <select id="fc-direction" class="btn">
+          <option value="term-first">Fronte: Parola italiana → Retro: Definizione</option>
+          <option value="def-first">Fronte: Definizione → Retro: Parola italiana</option>
+        </select>
+      </div>
+      <div class="btn-group">
+        <button class="btn" id="fc-shuffle-btn">🔀 Mescola</button>
+        <button class="btn" id="fc-reset-btn">↺ Ricomincia</button>
+      </div>
+    </div>
+
+    <div class="flashcard-container">
+      <div style="display:flex; justify-content:space-between; font-weight:700; font-size:0.9rem;">
+        <span id="fc-counter">Carta 1 di 10</span>
+        <span id="fc-known-count" style="color:var(--success);">Imparate: 0</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="fc-progress" style="width:0%"></div></div>
+
+      <div class="flashcard-scene" id="fc-scene">
+        <div class="flashcard" id="flashcard">
+          <div class="fc-face fc-front">
+            <span class="badge" id="fc-front-badge">Categoria</span>
+            <div class="fc-word" id="fc-front-main">Il Femore</div>
+            <div class="fc-hint" id="fc-front-sub">Clicca sulla carta per girarla</div>
+            <button class="btn primary" id="fc-speak-front" style="margin-top:16px;" onclick="event.stopPropagation()">🔊 Ascolta</button>
+          </div>
+          <div class="fc-face fc-back">
+            <span class="badge" id="fc-back-badge">Definizione</span>
+            <div class="fc-word" id="fc-back-main" style="font-size:1.45rem; font-weight:600;"></div>
+            <div class="fc-hint" id="fc-back-sub"></div>
+            <button class="btn primary" id="fc-speak-back" style="margin-top:16px;" onclick="event.stopPropagation()">🔊 Ascolta pronuncia</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+        <button class="btn" id="fc-prev-btn">⬅️ Precedente</button>
+        <button class="btn" id="fc-review-btn" style="border-color:var(--accent); color:#b45309;">🔁 Da ripassare</button>
+        <button class="btn primary" id="fc-know-btn" style="background:var(--success); border-color:var(--success);">✅ La so!</button>
+        <button class="btn" id="fc-next-btn">Successiva ➡️</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== MODALITÀ 3: PUZZLE ==================== -->
+  <section id="mode-puzzle" class="mode-panel">
+    <div class="toolbar">
+      <div class="btn-group">
+        <strong>Schema:</strong>
+        <select id="pz-view" class="btn">
+          <option value="anterior">Scheletro Anteriore</option>
+          <option value="posterior">Scheletro Posteriore</option>
+          <option value="skull">Cranio (Profilo)</option>
+        </select>
+        <strong>Livello:</strong>
+        <select id="pz-level" class="btn">
+          <option value="easy">Facile (8 ossa)</option>
+          <option value="medium" selected>Medio (13 ossa)</option>
+          <option value="hard">Completo (tutte)</option>
+        </select>
+        <button class="btn primary" id="pz-start-btn">🎮 Nuova partita</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-pill">⭐ Punti: <span id="pz-score">0</span></div>
+        <div class="stat-pill">❌ Errori: <span id="pz-errors">0</span></div>
+        <div class="stat-pill">⏱️ <span id="pz-timer">00:00</span></div>
+      </div>
+    </div>
+
+    <div class="workspace">
+      <div class="diagram-card">
+        <div class="diagram-wrapper" id="puzzle-diagram-container" style="position:relative;">
+          <div id="puzzle-svg-holder" style="width:100%; display:flex; justify-content:center;"></div>
+          <div id="puzzle-pins" class="puzzle-targets-layer"></div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3 style="margin-top:0;">🧩 Sistema le ossa al posto giusto</h3>
+        <p style="font-size:0.9rem; color:var(--muted); margin-top:4px;">
+          <strong>Trascina</strong> un nome sopra il cerchietto giusto dello scheletro, oppure <strong>clicca prima il nome</strong> e poi il <strong>cerchietto</strong> (ideale per LIM e tablet).
+        </p>
+
+        <div class="word-bank" id="pz-word-bank"></div>
+
+        <div class="victory-banner" id="pz-victory">
+          <h3 style="margin:0 0 6px; color:#15803d;">🎉 Ottimo lavoro!</h3>
+          <p id="pz-victory-text" style="margin:0 0 10px;"></p>
+          <button class="btn primary" onclick="startPuzzle()">Gioca ancora</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+// ==================== DATABASE ANATOMICO COMPLETO (DA PDF) ====================
+const BONES = {
+  // Cranio
+  frontale: {
+    name: "Frontale", article: "l'osso frontale", region: "Cranio",
+    desc: "Forma la fronte e la parte superiore delle orbite degli occhi."
+  },
+  parietale: {
+    name: "Parietale", article: "l'osso parietale", region: "Cranio",
+    desc: "Copre la parte superiore e laterale del cranio (sono due ossa simmetriche)."
+  },
+  occipitale: {
+    name: "Occipitale", article: "l'osso occipitale", region: "Cranio",
+    desc: "Si trova nella parte posteriore e inferiore del cranio, sopra il collo."
+  },
+  temporale: {
+    name: "Temporale", article: "l'osso temporale", region: "Cranio",
+    desc: "Si trova ai lati del cranio, intorno all'orecchio."
+  },
+  nasale: {
+    name: "Nasale", article: "l'osso nasale", region: "Cranio",
+    desc: "Piccolo osso che forma il ponte superiore del naso."
+  },
+  etmoide: {
+    name: "Etmoide", article: "l'etmoide", region: "Cranio",
+    desc: "Osso interno dietro il naso, tra le cavità degli occhi."
+  },
+  vomere: {
+    name: "Vomere", article: "il vomere", region: "Cranio",
+    desc: "Osso sottile che divide in due la cavità interna del naso."
+  },
+  zigomatico: {
+    name: "Zigomatico", article: "l'osso zigomatico", region: "Cranio",
+    desc: "Forma la guancia (lo zigomo) e il bordo esterno dell'occhio."
+  },
+  mascellare: {
+    name: "Mascellare", article: "l'osso mascellare", region: "Cranio",
+    desc: "Forma la mascella superiore e sostiene i denti superiori."
+  },
+  mandibola: {
+    name: "Mandibola", article: "la mandibola", region: "Cranio",
+    desc: "È l'unico osso mobile della testa: forma il mento e regge i denti inferiori."
+  },
+
+  // Tronco e Colonna
+  vertebre_cervicali: {
+    name: "Vertebre cervicali", article: "le vertebre cervicali", region: "Tronco e Bacino",
+    desc: "Le prime 7 vertebre del collo che sostengono e fanno muovere la testa."
+  },
+  clavicola: {
+    name: "Clavicola", article: "la clavicola", region: "Tronco e Bacino",
+    desc: "Osso sottile a forma di 'S' tra lo sterno e la spalla."
+  },
+  scapola: {
+    name: "Scapola", article: "la scapola", region: "Tronco e Bacino",
+    desc: "Osso piatto triangolare sulla parte alta della schiena, dietro la spalla."
+  },
+  sterno: {
+    name: "Sterno", article: "lo sterno", region: "Tronco e Bacino",
+    desc: "Osso piatto al centro del petto a cui si collegano le costole anteriori."
+  },
+  costola: {
+    name: "Costola", article: "la costola", region: "Tronco e Bacino",
+    desc: "Ossa curve che formano la gabbia toracica per proteggere cuore e polmoni."
+  },
+  costola_fluttuante: {
+    name: "Costola libera o fluttuante", article: "la costola fluttuante", region: "Tronco e Bacino",
+    desc: "Le ultime due coppie di costole in basso: non si collegano allo sterno."
+  },
+  vertebra: {
+    name: "Vertebra", article: "la vertebra", region: "Tronco e Bacino",
+    desc: "Ogni singolo osso ad anello che forma la colonna vertebrale."
+  },
+  vertebre_lombari: {
+    name: "Vertebre lombari", article: "le vertebre lombari", region: "Tronco e Bacino",
+    desc: "Le 5 grandi vertebre della parte bassa della schiena, sopra il bacino."
+  },
+
+  // Bacino
+  ilio: {
+    name: "Ilio", article: "l'ilio", region: "Tronco e Bacino",
+    desc: "La parte più grande e alta dell'osso del bacino (le 'ali' dei fianchi)."
+  },
+  sacro: {
+    name: "Sacro", article: "l'osso sacro", region: "Tronco e Bacino",
+    desc: "Osso triangolare alla base della colonna vertebrale, incastrato nel bacino."
+  },
+  pube: {
+    name: "Pube", article: "il pube", region: "Tronco e Bacino",
+    desc: "La parte anteriore e inferiore del bacino."
+  },
+  ischio: {
+    name: "Ischio", article: "l'ischio", region: "Tronco e Bacino",
+    desc: "La parte inferiore del bacino su cui ci appoggiamo quando siamo seduti."
+  },
+  coccige: {
+    name: "Coccige", article: "il coccige", region: "Tronco e Bacino",
+    desc: "Il piccolo osso finale alla punta inferiore della colonna vertebrale."
+  },
+
+  // Arto Superiore
+  omero: {
+    name: "Omero", article: "l'omero", region: "Arto Superiore",
+    desc: "L'osso lungo della parte superiore del braccio, dalla spalla al gomito."
+  },
+  radio: {
+    name: "Radio", article: "il radio", region: "Arto Superiore",
+    desc: "Osso dell'avambraccio situato sul lato esterno (lato del pollice)."
+  },
+  ulna: {
+    name: "Ulna", article: "l'ulna", region: "Arto Superiore",
+    desc: "Osso dell'avambraccio situato sul lato interno (lato del mignolo)."
+  },
+  carpo: {
+    name: "Carpo", article: "il carpo", region: "Arto Superiore",
+    desc: "L'insieme delle 8 piccole ossa che formano il polso."
+  },
+  metacarpo: {
+    name: "Metacarpo", article: "il metacarpo", region: "Arto Superiore",
+    desc: "Le 5 ossa allungate che formano il palmo della mano."
+  },
+  falangi_mano: {
+    name: "Falangi, Falangine e Falangette", article: "le falangi della mano", region: "Arto Superiore",
+    desc: "Le piccole ossa che compongono le dita della mano."
+  },
+
+  // Arto Inferiore
+  femore: {
+    name: "Femore", article: "il femore", region: "Arto Inferiore",
+    desc: "L'osso della coscia: è l'osso più lungo e robusto di tutto il corpo umano."
+  },
+  patella: {
+    name: "Patella o Rotula", article: "la patella (o rotula)", region: "Arto Inferiore",
+    desc: "Piccolo osso piatto e rotondeggiante davanti all'articolazione del ginocchio."
+  },
+  tibia: {
+    name: "Tibia", article: "la tibia", region: "Arto Inferiore",
+    desc: "L'osso più grande e robusto della parte inferiore della gamba (lato interno)."
+  },
+  fibula: {
+    name: "Fibula o Perone", article: "la fibula (o il perone)", region: "Arto Inferiore",
+    desc: "L'osso sottile della parte inferiore della gamba, sul lato esterno."
+  },
+  calcagno: {
+    name: "Tallone / Calcagno", article: "il calcagno", region: "Arto Inferiore",
+    desc: "L'osso robusto posteriore del piede che forma il tallone."
+  },
+  tarso: {
+    name: "Tarso", article: "il tarso", region: "Arto Inferiore",
+    desc: "Il gruppo di ossa che formano la caviglia e la parte posteriore del piede."
+  },
+  metatarso: {
+    name: "Metatarso", article: "il metatarso", region: "Arto Inferiore",
+    desc: "Le 5 ossa lunghe che formano la parte centrale del piede."
+  },
+  falangi_piede: {
+    name: "Falangi, Falangine e Falangette", article: "le falangi del piede", region: "Arto Inferiore",
+    desc: "Le piccole ossa che formano le dita dei piedi."
+  }
+};
+
+// ==================== DISEGNI SVG VETTORIALI ====================
+function getSVG(view) {
+  if (view === "anterior") {
+    return `
+    <svg class="skeleton-svg" viewBox="0 0 400 730" xmlns="http://www.w3.org/2000/svg">
+      <!-- Scapole (sfondo) -->
+      <g class="bone" data-bone="scapola">
+        <polygon points="135,146 168,148 152,202"/>
+        <polygon points="265,146 232,148 248,202"/>
+      </g>
+
+      <!-- Colonna Lombare / Vertebre -->
+      <g class="bone" data-bone="vertebra">
+        <rect x="190" y="230" width="20" height="10" rx="3"/>
+        <rect x="189" y="242" width="22" height="10" rx="3"/>
+        <rect x="188" y="254" width="24" height="11" rx="3"/>
+        <rect x="188" y="267" width="24" height="11" rx="3"/>
+      </g>
+
+      <!-- Vertebre Cervicali -->
+      <g class="bone" data-bone="vertebre_cervicali">
+        <rect x="193" y="106" width="14" height="6" rx="2"/>
+        <rect x="192" y="113" width="16" height="6" rx="2"/>
+        <rect x="192" y="120" width="16" height="6" rx="2"/>
+        <rect x="191" y="127" width="18" height="7" rx="2"/>
+      </g>
+
+      <!-- Cranio Anteriore -->
+      <g class="bone" data-bone="frontale">
+        <path d="M168,55 C168,26 232,26 232,55 L230,66 L170,66 Z"/>
+      </g>
+      <g class="bone" data-bone="zigomatico">
+        <path d="M168,66 L184,66 L184,82 L170,80 Z"/>
+        <path d="M232,66 L216,66 L216,82 L230,80 Z"/>
+        <circle cx="187" cy="64" r="9" style="fill:#334155;"/>
+        <circle cx="213" cy="64" r="9" style="fill:#334155;"/>
+      </g>
+      <g class="bone" data-bone="mascellare">
+        <path d="M180,75 L220,75 L216,90 L184,90 Z"/>
+        <polygon points="196,76 204,76 200,66" style="fill:#334155;"/>
+      </g>
+      <g class="bone" data-bone="mandibola">
+        <path d="M175,83 L182,88 L186,98 L214,98 L218,88 L225,83 L222,99 C215,109 185,109 178,99 Z"/>
+      </g>
+
+      <!-- Costole -->
+      <g class="bone" data-bone="costola">
+        <path d="M194,142 C164,142 150,152 152,162 C160,158 175,155 194,155 Z"/>
+        <path d="M206,142 C236,142 250,152 248,162 C240,158 225,155 206,155 Z"/>
+        <path d="M194,158 C158,158 143,168 145,179 C156,174 175,171 194,171 Z"/>
+        <path d="M206,158 C242,158 257,168 255,179 C244,174 225,171 206,171 Z"/>
+        <path d="M194,174 C153,174 139,186 142,197 C155,191 174,187 194,187 Z"/>
+        <path d="M206,174 C247,174 261,186 258,197 C245,191 226,187 206,187 Z"/>
+        <path d="M194,190 C154,192 142,204 146,214 C160,208 176,204 194,203 Z"/>
+        <path d="M206,190 C246,192 258,204 254,214 C240,208 224,204 206,203 Z"/>
+        <path d="M194,206 C160,210 148,220 154,228 C166,222 180,217 194,216 Z"/>
+        <path d="M206,206 C240,210 252,220 246,228 C234,222 220,217 206,216 Z"/>
+      </g>
+
+      <!-- Costole fluttuanti -->
+      <g class="bone" data-bone="costola_fluttuante">
+        <path d="M188,224 C168,228 156,236 154,242 C164,240 176,235 188,232 Z"/>
+        <path d="M212,224 C232,228 244,236 246,242 C236,240 224,235 212,232 Z"/>
+        <path d="M188,238 C172,242 163,248 162,254 C170,251 180,247 188,244 Z"/>
+        <path d="M212,238 C228,242 237,248 238,254 C230,251 220,247 212,244 Z"/>
+      </g>
+
+      <!-- Sterno -->
+      <g class="bone" data-bone="sterno">
+        <path d="M191,138 L209,138 L206,154 L205,212 L200,224 L195,212 L194,154 Z"/>
+      </g>
+
+      <!-- Clavicole -->
+      <g class="bone" data-bone="clavicola">
+        <path d="M192,138 C172,132 150,136 130,142 C128,145 130,149 134,149 C154,143 172,140 192,144 Z"/>
+        <path d="M208,138 C228,132 250,136 270,142 C272,145 270,149 266,149 C246,143 228,140 208,144 Z"/>
+      </g>
+
+      <!-- Bacino: Sacro, Ilio, Pube, Ischio -->
+      <g class="bone" data-bone="sacro">
+        <polygon points="184,280 216,280 209,318 200,326 191,318"/>
+      </g>
+      <g class="bone" data-bone="ilio">
+        <path d="M184,282 C164,274 144,286 146,312 C148,325 156,332 168,332 L185,318 Z"/>
+        <path d="M216,282 C236,274 256,286 254,312 C252,325 244,332 232,332 L215,318 Z"/>
+      </g>
+      <g class="bone" data-bone="pube">
+        <path d="M180,324 L198,324 L198,336 L176,334 Z"/>
+        <path d="M220,324 L202,324 L202,336 L224,334 Z"/>
+      </g>
+      <g class="bone" data-bone="ischio">
+        <path d="M168,332 C162,344 170,354 182,350 C189,347 192,339 192,335 L182,335 C180,342 174,344 174,336 Z"/>
+        <path d="M232,332 C238,344 230,354 218,350 C211,347 208,339 208,335 L218,335 C220,342 226,344 226,336 Z"/>
+      </g>
+
+      <!-- Omero -->
+      <g class="bone" data-bone="omero">
+        <path d="M126,146 C118,148 117,160 122,165 L112,250 C108,255 110,262 117,262 C123,262 126,256 124,250 L134,164 C138,158 134,146 126,146 Z"/>
+        <path d="M274,146 C282,148 283,160 278,165 L288,250 C292,255 290,262 283,262 C277,262 274,256 276,250 L266,164 C262,158 266,146 274,146 Z"/>
+      </g>
+
+      <!-- Radio (esterno / pollice) -->
+      <g class="bone" data-bone="radio">
+        <path d="M108,264 L114,264 L102,354 L94,354 Z"/>
+        <path d="M292,264 L286,264 L298,354 L306,354 Z"/>
+      </g>
+
+      <!-- Ulna (interno / mignolo) -->
+      <g class="bone" data-bone="ulna">
+        <path d="M118,262 L125,263 L112,354 L105,354 Z"/>
+        <path d="M282,262 L275,263 L288,354 L295,354 Z"/>
+      </g>
+
+      <!-- Mano: Carpo, Metacarpo, Falangi -->
+      <g class="bone" data-bone="carpo">
+        <rect x="94" y="356" width="18" height="10" rx="4"/>
+        <rect x="288" y="356" width="18" height="10" rx="4"/>
+      </g>
+      <g class="bone" data-bone="metacarpo">
+        <path d="M92,368 L96,386 M97,368 L100,388 M102,368 L105,388 M107,368 L110,386 M112,368 L115,383" stroke-width="3"/>
+        <rect x="92" y="367" width="22" height="18" rx="4"/>
+        <rect x="286" y="367" width="22" height="18" rx="4"/>
+      </g>
+      <g class="bone" data-bone="falangi_mano">
+        <rect x="85" y="376" width="6" height="16" rx="2"/>
+        <rect x="92" y="387" width="5" height="22" rx="2"/>
+        <rect x="98" y="388" width="5" height="25" rx="2"/>
+        <rect x="104" y="388" width="5" height="23" rx="2"/>
+        <rect x="110" y="386" width="5" height="18" rx="2"/>
+
+        <rect x="309" y="376" width="6" height="16" rx="2"/>
+        <rect x="303" y="387" width="5" height="22" rx="2"/>
+        <rect x="297" y="388" width="5" height="25" rx="2"/>
+        <rect x="291" y="388" width="5" height="23" rx="2"/>
+        <rect x="285" y="386" width="5" height="18" rx="2"/>
+      </g>
+
+      <!-- Femore -->
+      <g class="bone" data-bone="femore">
+        <path d="M164,330 C156,326 146,334 148,346 L163,482 C160,488 164,494 174,494 C182,494 186,488 182,482 L168,348 C173,343 172,334 164,330 Z"/>
+        <path d="M236,330 C244,326 254,334 252,346 L237,482 C240,488 236,494 226,494 C218,494 214,488 218,482 L232,348 C227,343 228,334 236,330 Z"/>
+      </g>
+
+      <!-- Patella o Rotula -->
+      <g class="bone" data-bone="patella">
+        <ellipse cx="173" cy="496" rx="8" ry="9"/>
+        <ellipse cx="227" cy="496" rx="8" ry="9"/>
+      </g>
+
+      <!-- Tibia (interna) -->
+      <g class="bone" data-bone="tibia">
+        <path d="M167,506 L183,506 L181,656 L169,656 Z"/>
+        <path d="M217,506 L233,506 L231,656 L219,656 Z"/>
+      </g>
+
+      <!-- Fibula o Perone (esterna) -->
+      <g class="bone" data-bone="fibula">
+        <path d="M158,512 L164,512 L165,656 L159,656 Z"/>
+        <path d="M236,512 L242,512 L241,656 L235,656 Z"/>
+      </g>
+
+      <!-- Piede: Tarso, Metatarso, Falangi -->
+      <g class="bone" data-bone="tarso">
+        <rect x="160" y="658" width="22" height="14" rx="5"/>
+        <rect x="218" y="658" width="22" height="14" rx="5"/>
+      </g>
+      <g class="bone" data-bone="metatarso">
+        <rect x="157" y="674" width="26" height="15" rx="4"/>
+        <rect x="217" y="674" width="26" height="15" rx="4"/>
+      </g>
+      <g class="bone" data-bone="falangi_piede">
+        <rect x="156" y="691" width="28" height="12" rx="4"/>
+        <rect x="216" y="691" width="28" height="12" rx="4"/>
+      </g>
+    </svg>`;
+  }
+
+  if (view === "posterior") {
+    return `
+    <svg class="skeleton-svg" viewBox="0 0 400 730" xmlns="http://www.w3.org/2000/svg">
+      <!-- Cranio Posteriore -->
+      <g class="bone" data-bone="parietale">
+        <path d="M167,62 C167,26 233,26 233,62 L231,75 L169,75 Z"/>
+      </g>
+      <g class="bone" data-bone="occipitale">
+        <path d="M169,75 L231,75 C230,93 216,101 200,101 C184,101 170,93 169,75 Z"/>
+      </g>
+      <g class="bone" data-bone="mandibola">
+        <path d="M178,96 L186,105 L214,105 L222,96 L216,109 L184,109 Z"/>
+      </g>
+
+      <!-- Vertebre Cervicali -->
+      <g class="bone" data-bone="vertebre_cervicali">
+        <rect x="193" y="108" width="14" height="6" rx="2"/>
+        <rect x="192" y="115" width="16" height="6" rx="2"/>
+        <rect x="192" y="122" width="16" height="6" rx="2"/>
+        <rect x="191" y="129" width="18" height="7" rx="2"/>
+      </g>
+
+      <!-- Costole (dietro) -->
+      <g class="bone" data-bone="costola">
+        <path d="M192,144 C162,144 146,154 148,164 C162,160 176,158 192,158 Z"/>
+        <path d="M208,144 C238,144 254,154 252,164 C238,160 224,158 208,158 Z"/>
+        <path d="M192,162 C156,162 140,174 144,184 C158,178 176,175 192,175 Z"/>
+        <path d="M208,162 C244,162 260,174 256,184 C242,178 224,175 208,175 Z"/>
+        <path d="M192,180 C154,182 140,194 144,205 C158,198 175,195 192,195 Z"/>
+        <path d="M208,180 C246,182 260,194 256,205 C242,198 225,195 208,195 Z"/>
+        <path d="M192,198 C156,202 144,214 148,224 C162,216 178,212 192,212 Z"/>
+        <path d="M208,198 C244,202 256,214 252,224 C238,216 222,212 208,212 Z"/>
+        <path d="M192,216 C164,220 152,230 156,238 C168,232 180,228 192,228 Z"/>
+        <path d="M208,216 C236,220 248,230 244,238 C232,232 220,228 208,228 Z"/>
+      </g>
+
+      <!-- Colonna toracica centrale -->
+      <rect x="193" y="138" width="14" height="94" rx="4" fill="#e2e8f0" stroke="#334155" stroke-width="1.5"/>
+
+      <!-- Clavicola (sporge sopra) -->
+      <g class="bone" data-bone="clavicola">
+        <path d="M188,137 C168,133 146,136 132,142 L135,147 C152,141 170,140 188,142 Z"/>
+        <path d="M212,137 C232,133 254,136 268,142 L265,147 C248,141 230,140 212,142 Z"/>
+      </g>
+
+      <!-- Scapole (molto evidenti dietro) -->
+      <g class="bone" data-bone="scapola">
+        <path d="M134,148 L178,150 L168,208 C164,212 158,210 154,202 Z"/>
+        <path d="M266,148 L222,150 L232,208 C236,212 242,210 246,202 Z"/>
+      </g>
+
+      <!-- Vertebre Lombari -->
+      <g class="bone" data-bone="vertebre_lombari">
+        <rect x="189" y="234" width="22" height="10" rx="3"/>
+        <rect x="188" y="246" width="24" height="10" rx="3"/>
+        <rect x="187" y="258" width="26" height="11" rx="3"/>
+        <rect x="187" y="271" width="26" height="11" rx="3"/>
+      </g>
+
+      <!-- Bacino posteriore: Ilio, Sacro, Coccige -->
+      <g class="bone" data-bone="ilio">
+        <path d="M183,284 C162,276 144,288 146,314 C148,327 156,334 168,334 L184,320 Z"/>
+        <path d="M217,284 C238,276 256,288 254,314 C252,327 244,334 232,334 L216,320 Z"/>
+      </g>
+      <g class="bone" data-bone="sacro">
+        <polygon points="183,284 217,284 209,322 191,322"/>
+      </g>
+      <g class="bone" data-bone="coccige">
+        <polygon points="193,323 207,323 200,342"/>
+      </g>
+
+      <!-- Braccia posteriori -->
+      <g class="bone" data-bone="omero">
+        <path d="M126,148 C118,150 117,162 122,167 L112,250 C108,255 110,262 117,262 C123,262 126,256 124,250 L134,166 C138,160 134,148 126,148 Z"/>
+        <path d="M274,148 C282,150 283,162 278,167 L288,250 C292,255 290,262 283,262 C277,262 274,256 276,250 L266,166 C262,160 266,148 274,148 Z"/>
+      </g>
+      <g class="bone" data-bone="radio">
+        <path d="M108,264 L114,264 L102,354 L94,354 Z"/>
+        <path d="M292,264 L286,264 L298,354 L306,354 Z"/>
+      </g>
+      <g class="bone" data-bone="ulna">
+        <path d="M118,262 L125,263 L112,354 L105,354 Z"/>
+        <path d="M282,262 L275,263 L288,354 L295,354 Z"/>
+      </g>
+      <g class="bone" data-bone="carpo">
+        <rect x="94" y="356" width="18" height="10" rx="4"/>
+        <rect x="288" y="356" width="18" height="10" rx="4"/>
+      </g>
+      <g class="bone" data-bone="metacarpo">
+        <rect x="92" y="367" width="22" height="18" rx="4"/>
+        <rect x="286" y="367" width="22" height="18" rx="4"/>
+      </g>
+      <g class="bone" data-bone="falangi_mano">
+        <rect x="85" y="376" width="6" height="16" rx="2"/>
+        <rect x="92" y="387" width="5" height="22" rx="2"/>
+        <rect x="98" y="388" width="5" height="25" rx="2"/>
+        <rect x="104" y="388" width="5" height="23" rx="2"/>
+        <rect x="110" y="386" width="5" height="18" rx="2"/>
+
+        <rect x="309" y="376" width="6" height="16" rx="2"/>
+        <rect x="303" y="387" width="5" height="22" rx="2"/>
+        <rect x="297" y="388" width="5" height="25" rx="2"/>
+        <rect x="291" y="388" width="5" height="23" rx="2"/>
+        <rect x="285" y="386" width="5" height="18" rx="2"/>
+      </g>
+
+      <!-- Gambe posteriori -->
+      <g class="bone" data-bone="femore">
+        <path d="M164,332 C156,328 146,336 148,348 L163,484 C160,490 164,496 174,496 C182,496 186,490 182,484 L168,350 C173,345 172,336 164,332 Z"/>
+        <path d="M236,332 C244,328 254,336 252,348 L237,484 C240,490 236,496 226,496 C218,496 214,490 218,484 L232,350 C227,345 228,336 236,332 Z"/>
+      </g>
+      <g class="bone" data-bone="tibia">
+        <path d="M167,502 L183,502 L181,654 L169,654 Z"/>
+        <path d="M217,502 L233,502 L231,654 L219,654 Z"/>
+      </g>
+      <g class="bone" data-bone="fibula">
+        <path d="M158,508 L164,508 L165,654 L159,654 Z"/>
+        <path d="M236,508 L242,508 L241,654 L235,654 Z"/>
+      </g>
+      <!-- Calcagno e Piede -->
+      <g class="bone" data-bone="calcagno">
+        <ellipse cx="171" cy="668" rx="13" ry="12"/>
+        <ellipse cx="229" cy="668" rx="13" ry="12"/>
+      </g>
+      <g class="bone" data-bone="tarso">
+        <rect x="157" y="681" width="28" height="12" rx="4"/>
+        <rect x="215" y="681" width="28" height="12" rx="4"/>
+      </g>
+      <g class="bone" data-bone="falangi_piede">
+        <rect x="156" y="694" width="30" height="11" rx="4"/>
+        <rect x="214" y="694" width="30" height="11" rx="4"/>
+      </g>
+    </svg>`;
+  }
+
+  // Vista Cranio laterale
+  return `
+  <svg class="skeleton-svg" viewBox="0 0 400 330" xmlns="http://www.w3.org/2000/svg" style="max-height:420px;">
+    <g class="bone" data-bone="frontale">
+      <path d="M104,132 C106,62 158,28 212,32 L208,118 L128,136 Z"/>
+    </g>
+    <g class="bone" data-bone="parietale">
+      <path d="M212,32 C282,30 340,72 342,138 L254,150 L208,118 Z"/>
+    </g>
+    <g class="bone" data-bone="occipitale">
+      <path d="M342,138 C342,188 302,226 250,224 L254,150 Z"/>
+    </g>
+    <g class="bone" data-bone="temporale">
+      <path d="M188,124 L254,150 L250,214 C216,214 192,196 184,166 Z"/>
+      <circle cx="222" cy="184" r="9" style="fill:#334155;"/>
+    </g>
+    <g class="bone" data-bone="nasale">
+      <path d="M104,132 L78,166 L98,172 L120,142 Z"/>
+    </g>
+    <g class="bone" data-bone="etmoide">
+      <rect x="122" y="138" width="26" height="28" rx="6"/>
+    </g>
+    <g class="bone" data-bone="vomere">
+      <polygon points="104,174 134,176 132,196 98,192"/>
+    </g>
+    <g class="bone" data-bone="zigomatico">
+      <path d="M138,144 L188,142 L188,176 L142,184 Z"/>
+      <circle cx="122" cy="148" r="14" style="fill:#334155; opacity:0.25;"/>
+    </g>
+    <g class="bone" data-bone="mascellare">
+      <path d="M96,192 L156,184 L164,224 L98,224 Z"/>
+    </g>
+    <g class="bone" data-bone="mandibola">
+      <path d="M174,196 L194,196 L192,258 C188,282 150,288 106,278 L104,244 L164,244 Z"/>
+    </g>
+  </svg>`;
+}
+
+// Coordinate percentuali per i target del Puzzle
+const PUZZLE_PINS = {
+  anterior: [
+    { id: "frontale", x: 50, y: 7, level: "easy" },
+    { id: "mandibola", x: 50, y: 14, level: "medium" },
+    { id: "clavicola", x: 39, y: 19, level: "easy" },
+    { id: "sterno", x: 50, y: 24, level: "easy" },
+    { id: "costola", x: 61, y: 26, level: "easy" },
+    { id: "costola_fluttuante", x: 60, y: 33, level: "hard" },
+    { id: "omero", x: 29, y: 28, level: "easy" },
+    { id: "radio", x: 24, y: 42, level: "medium" },
+    { id: "ulna", x: 72, y: 42, level: "medium" },
+    { id: "carpo", x: 24, y: 50, level: "hard" },
+    { id: "falangi_mano", x: 75, y: 55, level: "medium" },
+    { id: "ilio", x: 40, y: 41, level: "medium" },
+    { id: "sacro", x: 50, y: 41, level: "hard" },
+    { id: "femore", x: 39, y: 57, level: "easy" },
+    { id: "patella", x: 58, y: 68, level: "easy" },
+    { id: "tibia", x: 44, y: 80, level: "easy" },
+    { id: "fibula", x: 61, y: 80, level: "medium" },
+    { id: "tarso", x: 42, y: 92, level: "hard" }
+  ],
+  posterior: [
+    { id: "parietale", x: 50, y: 7, level: "easy" },
+    { id: "occipitale", x: 50, y: 12, level: "medium" },
+    { id: "vertebre_cervicali", x: 50, y: 17, level: "medium" },
+    { id: "scapola", x: 38, y: 24, level: "easy" },
+    { id: "costola", x: 61, y: 27, level: "easy" },
+    { id: "vertebre_lombari", x: 50, y: 36, level: "easy" },
+    { id: "omero", x: 29, y: 29, level: "easy" },
+    { id: "ulna", x: 27, y: 42, level: "medium" },
+    { id: "radio", x: 75, y: 42, level: "medium" },
+    { id: "ilio", x: 40, y: 42, level: "medium" },
+    { id: "sacro", x: 50, y: 42, level: "hard" },
+    { id: "coccige", x: 50, y: 46, level: "hard" },
+    { id: "femore", x: 39, y: 58, level: "easy" },
+    { id: "tibia", x: 44, y: 80, level: "easy" },
+    { id: "fibula", x: 61, y: 80, level: "medium" },
+    { id: "calcagno", x: 43, y: 92, level: "easy" }
+  ],
+  skull: [
+    { id: "frontale", x: 37, y: 24, level: "easy" },
+    { id: "parietale", x: 68, y: 24, level: "easy" },
+    { id: "occipitale", x: 76, y: 55, level: "easy" },
+    { id: "temporale", x: 56, y: 54, level: "easy" },
+    { id: "nasale", x: 23, y: 47, level: "easy" },
+    { id: "etmoide", x: 34, y: 46, level: "hard" },
+    { id: "vomere", x: 28, y: 56, level: "hard" },
+    { id: "zigomatico", x: 41, y: 49, level: "easy" },
+    { id: "mascellare", x: 31, y: 63, level: "easy" },
+    { id: "mandibola", x: 43, y: 78, level: "easy" }
+  ]
+};
+
+// ==================== SINTESI VOCALE (ITALIANO) ====================
+function speakItalian(text) {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "it-IT";
+  utter.rate = 0.92;
+  window.speechSynthesis.speak(utter);
+}
+
+// ==================== GESTIONE SCHEDE MODALITÀ ====================
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".mode-panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("mode-" + btn.dataset.mode).classList.add("active");
+  });
+});
+
+// ==================== MODALITÀ 1: ESPLORA ====================
+let currentExploreView = "anterior";
+let currentExploreBone = null;
+const tooltip = document.getElementById("tooltip");
+
+function renderExplore(view) {
+  currentExploreView = view;
+  const container = document.getElementById("explore-diagram-container");
+  container.innerHTML = getSVG(view);
+
+  const svg = container.querySelector("svg");
+  const boneGroups = svg.querySelectorAll(".bone");
+  const uniqueIds = [...new Set([...boneGroups].map(g => g.dataset.bone))];
+
+  // Lista rapida laterale
+  const quickList = document.getElementById("explore-quick-list");
+  quickList.innerHTML = "";
+  uniqueIds.forEach(id => {
+    if (!BONES[id]) return;
+    const chip = document.createElement("button");
+    chip.className = "chip-mini";
+    chip.textContent = BONES[id].name;
+    chip.dataset.bone = id;
+    chip.addEventListener("click", () => selectExploreBone(id, true));
+    chip.addEventListener("mouseenter", () => highlightBoneInSVG(svg, id, true));
+    chip.addEventListener("mouseleave", () => highlightBoneInSVG(svg, id, false));
+    quickList.appendChild(chip);
+  });
+
+  // Eventi sulle ossa SVG
+  boneGroups.forEach(group => {
+    const id = group.dataset.bone;
+    group.addEventListener("mouseenter", e => {
+      highlightBoneInSVG(svg, id, true);
+      if (BONES[id]) {
+        tooltip.textContent = BONES[id].article;
+        tooltip.classList.add("visible");
+        updateInfoCard(id);
+      }
+    });
+
+    group.addEventListener("mousemove", e => {
+      tooltip.style.left = e.clientX + "px";
+      tooltip.style.top = e.clientY + "px";
+    });
+
+    group.addEventListener("mouseleave", () => {
+      highlightBoneInSVG(svg, id, false);
+      tooltip.classList.remove("visible");
+    });
+
+    group.addEventListener("click", () => {
+      selectExploreBone(id, true);
+    });
+  });
+}
+
+function highlightBoneInSVG(svg, boneId, state) {
+  svg.querySelectorAll(`.bone[data-bone="${boneId}"]`).forEach(el => {
+    el.classList.toggle("hovered", state);
+  });
+}
+
+function updateInfoCard(boneId) {
+  const b = BONES[boneId];
+  if (!b) return;
+  currentExploreBone = boneId;
+  document.getElementById("info-region").textContent = b.region;
+  document.getElementById("info-name").textContent = b.name;
+  document.getElementById("info-article").textContent = "Forma con articolo: " + b.article;
+  document.getElementById("info-desc").textContent = b.desc;
+  document.getElementById("speak-current-btn").disabled = false;
+
+  document.querySelectorAll("#explore-quick-list .chip-mini").forEach(c => {
+    c.classList.toggle("active", c.dataset.bone === boneId);
+  });
+}
+
+function selectExploreBone(boneId, isUserClick = false) {
+  const svg = document.querySelector("#explore-diagram-container svg");
+  svg.querySelectorAll(".bone").forEach(el => el.classList.remove("selected"));
+  svg.querySelectorAll(`.bone[data-bone="${boneId}"]`).forEach(el => el.classList.add("selected"));
+  updateInfoCard(boneId);
+
+  if (isUserClick || document.getElementById("auto-audio-toggle").checked) {
+    if (BONES[boneId]) speakItalian(BONES[boneId].article);
+  }
+}
+
+document.getElementById("speak-current-btn").addEventListener("click", () => {
+  if (currentExploreBone && BONES[currentExploreBone]) {
+    speakItalian(BONES[currentExploreBone].article);
+  }
+});
+
+document.querySelectorAll(".explore-view-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".explore-view-btn").forEach(b => b.classList.remove("active-pill"));
+    btn.classList.add("active-pill");
+    renderExplore(btn.dataset.view);
+  });
+});
+
+renderExplore("anterior");
+
+// ==================== MODALITÀ 2: FLASHCARD ====================
+let fcDeck = [];
+let fcIndex = 0;
+let fcKnown = new Set();
+
+function buildFlashcards() {
+  const cat = document.getElementById("fc-category").value;
+  fcDeck = Object.keys(BONES).filter(id => cat === "all" || BONES[id].region === cat);
+  fcIndex = 0;
+  fcKnown.clear();
+  renderFlashcard();
+}
+
+function renderFlashcard() {
+  if (fcDeck.length === 0) return;
+  const id = fcDeck[fcIndex];
+  const bone = BONES[id];
+  const dir = document.getElementById("fc-direction").value;
+  const card = document.getElementById("flashcard");
+  card.classList.remove("flipped");
+
+  if (dir === "term-first") {
+    document.getElementById("fc-front-badge").textContent = bone.region;
+    document.getElementById("fc-front-main").textContent = bone.article;
+    document.getElementById("fc-front-sub").textContent = "Clicca sulla carta per vedere la definizione";
+    document.getElementById("fc-speak-front").style.display = "inline-block";
+
+    document.getElementById("fc-back-badge").textContent = bone.name;
+    document.getElementById("fc-back-main").textContent = bone.desc;
+    document.getElementById("fc-back-sub").textContent = "Conosci già questa parola?";
+    document.getElementById("fc-speak-back").style.display = "inline-block";
+  } else {
+    document.getElementById("fc-front-badge").textContent = bone.region;
+    document.getElementById("fc-front-main").textContent = bone.desc;
+    document.getElementById("fc-front-main").style.fontSize = "1.35rem";
+    document.getElementById("fc-front-sub").textContent = "Che osso è? Clicca per scoprire la risposta";
+    document.getElementById("fc-speak-front").style.display = "none";
+
+    document.getElementById("fc-back-badge").textContent = "Risposta corretta";
+    document.getElementById("fc-back-main").textContent = bone.article;
+    document.getElementById("fc-back-main").style.fontSize = "2.1rem";
+    document.getElementById("fc-back-sub").textContent = "Termine: " + bone.name;
+    document.getElementById("fc-speak-back").style.display = "inline-block";
+  }
+
+  if (dir === "term-first") {
+    document.getElementById("fc-front-main").style.fontSize = "2.2rem";
+    document.getElementById("fc-back-main").style.fontSize = "1.4rem";
+  }
+
+  document.getElementById("fc-counter").textContent = `Carta ${fcIndex + 1} di ${fcDeck.length}`;
+  document.getElementById("fc-known-count").textContent = `Imparate: ${fcKnown.size}`;
+  const pct = Math.round(((fcIndex + 1) / fcDeck.length) * 100);
+  document.getElementById("fc-progress").style.width = pct + "%";
+}
+
+document.getElementById("fc-scene").addEventListener("click", () => {
+  document.getElementById("flashcard").classList.toggle("flipped");
+});
+
+document.getElementById("fc-speak-front").addEventListener("click", () => {
+  const id = fcDeck[fcIndex];
+  speakItalian(BONES[id].article);
+});
+
+document.getElementById("fc-speak-back").addEventListener("click", () => {
+  const id = fcDeck[fcIndex];
+  speakItalian(BONES[id].article);
+});
+
+document.getElementById("fc-next-btn").addEventListener("click", () => {
+  fcIndex = (fcIndex + 1) % fcDeck.length;
+  renderFlashcard();
+});
+
+document.getElementById("fc-prev-btn").addEventListener("click", () => {
+  fcIndex = (fcIndex - 1 + fcDeck.length) % fcDeck.length;
+  renderFlashcard();
+});
+
+document.getElementById("fc-know-btn").addEventListener("click", () => {
+  fcKnown.add(fcDeck[fcIndex]);
+  fcIndex = (fcIndex + 1) % fcDeck.length;
+  renderFlashcard();
+});
+
+document.getElementById("fc-review-btn").addEventListener("click", () => {
+  fcKnown.delete(fcDeck[fcIndex]);
+  fcIndex = (fcIndex + 1) % fcDeck.length;
+  renderFlashcard();
+});
+
+document.getElementById("fc-shuffle-btn").addEventListener("click", () => {
+  fcDeck.sort(() => Math.random() - 0.5);
+  fcIndex = 0;
+  renderFlashcard();
+});
+
+document.getElementById("fc-reset-btn").addEventListener("click", buildFlashcards);
+document.getElementById("fc-category").addEventListener("change", buildFlashcards);
+document.getElementById("fc-direction").addEventListener("change", renderFlashcard);
+
+buildFlashcards();
+
+// ==================== MODALITÀ 3: PUZZLE ====================
+let pzPickedBone = null;
+let pzScore = 0;
+let pzErrors = 0;
+let pzTotal = 0;
+let pzSolved = 0;
+let pzSeconds = 0;
+let pzTimerInterval = null;
+
+function startPuzzle() {
+  const view = document.getElementById("pz-view").value;
+  const level = document.getElementById("pz-level").value;
+
+  pzPickedBone = null;
+  pzScore = 0;
+  pzErrors = 0;
+  pzSolved = 0;
+  pzSeconds = 0;
+  clearInterval(pzTimerInterval);
+
+  document.getElementById("pz-score").textContent = "0";
+  document.getElementById("pz-errors").textContent = "0";
+  document.getElementById("pz-timer").textContent = "00:00";
+  document.getElementById("pz-victory").classList.remove("show");
+
+  const svgHolder = document.getElementById("puzzle-svg-holder");
+  svgHolder.innerHTML = getSVG(view);
+
+  const allowedLevels = level === "easy" ? ["easy"] : level === "medium" ? ["easy", "medium"] : ["easy", "medium", "hard"];
+  const activePins = PUZZLE_PINS[view].filter(p => allowedLevels.includes(p.level));
+  pzTotal = activePins.length;
+
+  // Render cerchietti target
+  const pinsLayer = document.getElementById("puzzle-pins");
+  pinsLayer.innerHTML = "";
+
+  activePins.forEach((pin, idx) => {
+    const el = document.createElement("div");
+    el.className = "target-pin";
+    el.dataset.bone = pin.id;
+    el.style.left = pin.x + "%";
+    el.style.top = pin.y + "%";
+    el.textContent = idx + 1;
+
+    el.addEventListener("dragover", e => {
+      e.preventDefault();
+      if (!el.classList.contains("solved")) el.classList.add("drag-over");
+    });
+
+    el.addEventListener("dragleave", () => el.classList.remove("drag-over"));
+
+    el.addEventListener("drop", e => {
+      e.preventDefault();
+      el.classList.remove("drag-over");
+      const draggedId = e.dataTransfer.getData("text/plain");
+      attemptMatch(draggedId, el);
+    });
+
+    el.addEventListener("click", () => {
+      if (pzPickedBone) attemptMatch(pzPickedBone, el);
+    });
+
+    pinsLayer.appendChild(el);
+  });
+
+  // Render banco parole mescolato
+  const bank = document.getElementById("pz-word-bank");
+  bank.innerHTML = "";
+  const shuffled = [...activePins].sort(() => Math.random() - 0.5);
+
+  shuffled.forEach(pin => {
+    const chip = document.createElement("div");
+    chip.className = "drag-chip";
+    chip.draggable = true;
+    chip.dataset.bone = pin.id;
+    chip.innerHTML = `<span>🦴</span><span>${BONES[pin.id].name}</span>`;
+
+    chip.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", pin.id);
+      pzPickedBone = pin.id;
+    });
+
+    chip.addEventListener("click", () => {
+      if (chip.classList.contains("used")) return;
+      document.querySelectorAll(".drag-chip").forEach(c => c.classList.remove("picked"));
+      if (pzPickedBone === pin.id) {
+        pzPickedBone = null;
+      } else {
+        pzPickedBone = pin.id;
+        chip.classList.add("picked");
+      }
+    });
+
+    bank.appendChild(chip);
+  });
+
+  pzTimerInterval = setInterval(() => {
+    pzSeconds++;
+    const m = String(Math.floor(pzSeconds / 60)).padStart(2, "0");
+    const s = String(pzSeconds % 60).padStart(2, "0");
+    document.getElementById("pz-timer").textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function attemptMatch(boneId, pinEl) {
+  if (!boneId || pinEl.classList.contains("solved")) return;
+
+  if (pinEl.dataset.bone === boneId) {
+    // Corretto!
+    pinEl.classList.add("solved");
+    pinEl.textContent = "✓ " + BONES[boneId].name;
+
+    const svg = document.querySelector("#puzzle-svg-holder svg");
+    svg.querySelectorAll(`.bone[data-bone="${boneId}"]`).forEach(g => g.classList.add("matched"));
+
+    const chip = document.querySelector(`.drag-chip[data-bone="${boneId}"]`);
+    if (chip) {
+      chip.classList.remove("picked");
+      chip.classList.add("used");
+    }
+
+    pzPickedBone = null;
+    pzScore += 10;
+    pzSolved++;
+    document.getElementById("pz-score").textContent = pzScore;
+    speakItalian(BONES[boneId].article);
+
+    if (pzSolved === pzTotal) {
+      clearInterval(pzTimerInterval);
+      const timeStr = document.getElementById("pz-timer").textContent;
+      document.getElementById("pz-victory-text").textContent =
+        `Hai completato tutte le ${pzTotal} ossa in ${timeStr} con ${pzScore} punti e ${pzErrors} errori!`;
+      document.getElementById("pz-victory").classList.add("show");
+    }
+  } else {
+    // Sbagliato
+    pzErrors++;
+    pzScore = Math.max(0, pzScore - 2);
+    document.getElementById("pz-errors").textContent = pzErrors;
+    document.getElementById("pz-score").textContent = pzScore;
+    pinEl.classList.add("wrong-shake");
+    setTimeout(() => pinEl.classList.remove("wrong-shake"), 400);
+  }
+}
+
+document.getElementById("pz-start-btn").addEventListener("click", startPuzzle);
+document.getElementById("pz-view").addEventListener("change", startPuzzle);
+document.getElementById("pz-level").addEventListener("change", startPuzzle);
+
+startPuzzle();
+</script>
+</body>
+</html>
